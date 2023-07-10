@@ -18,7 +18,7 @@ function App() {
           workbook.Sheets[sheetName] as WorkBook
         );
 
-        const json_object = JSON.stringify(XL_row_object);
+        // const json_object = JSON.stringify(XL_row_object);
         // console.log(json_object);
         setRows(XL_row_object as any);
         setFilteredRow(XL_row_object as any);
