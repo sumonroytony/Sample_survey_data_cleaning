@@ -39,7 +39,7 @@ function App() {
 
     filteredRow.forEach((element: any) => {
       let row: any = [];
-      Object.keys(element).forEach(function (key, index) {
+      Object.keys(element).forEach(function (key) {
         row.push(element[key]);
       });
 
@@ -85,7 +85,7 @@ function App() {
 
   const handleClearFilterData = () => {
     const columnLength = columns.length;
-    const newRows = rows.filter((row: any) => {
+    rows.filter((row: any) => {
       if (Object.keys(row).length !== columnLength) {
         return true;
       } else {
