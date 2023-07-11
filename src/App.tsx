@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { WorkBook, read, utils } from 'xlsx';
+import { WorkBook, read, utils, writeFile } from 'xlsx';
 import './App.css';
 /* eslint-disable */
 function App() {
@@ -27,11 +27,40 @@ function App() {
           workbookHeaders.Sheets[sheetName] as WorkBook,
           { header: 1 }
         )[0];
-        // console.log(columnsArray);
+        console.log(columnsArray);
         setColumns(columnsArray as any);
       });
     };
     fileReader.readAsBinaryString(file as Blob);
+  };
+
+  const exportToExcel = () => {
+
+    let data = [
+      columns,
+    ];
+
+    filteredRow.forEach(element => {
+      let row = [];
+      Object.keys(element).forEach(function(key, index) {
+        row.push(element[key]);
+      });
+
+      data.push(row);
+    });
+    
+    // Sample data
+    
+  
+    // Create a new workbook and worksheet
+    const workbook = utils.book_new();
+    const worksheet = utils.aoa_to_sheet(data);
+  
+    // Add the worksheet to the workbook
+    utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+  
+    // Generate the XLSX file
+    writeFile(workbook, 'filtered-data.xlsx');
   };
 
   const handleMissingData = () => {
@@ -57,6 +86,18 @@ function App() {
     });
     setFilteredRow(newRows);
   };
+  
+  const handleClearFilterData = () => {
+    const columnLength = columns.length;
+    const newRows = rows.filter((row: any) => {
+      if (Object.keys(row).length !== columnLength) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+    setFilteredRow(rows);
+  };
 
   return (
     <div className='mx-4 my-4'>
@@ -74,6 +115,7 @@ function App() {
         type='file'
         id='file'
       />
+      <div>
       <button
         type='button'
         onClick={handleSubmit}
@@ -87,24 +129,43 @@ function App() {
         type='button'
         onClick={handleMissingData}
       >
-        Remove Missing data
+        Filter Missing data
       </button>
 
-      <button
+      {/* <button
         className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded  m-4'
         type='button'
         onClick={handleCheckMissingData}
       >
         Check Missing data
+      </button> */}
+      <button
+        className='bg-red-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded  m-4'
+        type='button'
+        onClick={handleClearFilterData}
+      >
+        Clear Filter
       </button>
+      <button
+        className='bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded  m-4 float-right'
+        type='button'
+      >Total Data:{filteredRow.length}</button>
+      <button
+        className='bg-green-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded  m-4 float-right'
+        type='button' onClick={exportToExcel}
+      >Export</button>
+     
+      </div>
+      
+      
+
 
       <hr />
-
       <div className='px-4 sm:px-6 lg:px-8'>
         <div className='mt-8 flow-root'>
           <div className='-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8'>
-            <div className='inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8'>
-              <table className='min-w-full divide-y divide-gray-300'>
+            <div className='inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8 overflow-x'>
+              <table className='min-w-full divide-y divide-gray-300 table-auto overflow-x-scroll w-full'>
                 <thead>
                   <tr>
                     {columns?.map((column: any) => (
@@ -119,8 +180,9 @@ function App() {
                 </thead>
                 <tbody className='divide-y divide-gray-200'>
                   {filteredRow.length > 0 &&
-                    filteredRow?.map((row: any) => (
+                    filteredRow?.map((row: any, index:any) => (
                       <tr key={row[columns[0]]}>
+                        <td className='whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0'>{index + 1}</td>
                         {columns.map((column: any) => (
                           <td className='whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-0'>
                             {row[column] as any}
